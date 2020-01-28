@@ -12,6 +12,7 @@ class MRPProduction(models.Model):
 
     @api.depends('bom_id', 'move_raw_ids')
     def _compute_optimal(self):
+        self.optimal = True
         for move_raw in self.move_raw_ids:
             if move_raw.product_id.to_optimize:
                 # for lot in move_raw.
@@ -28,6 +29,7 @@ class MRPProduction(models.Model):
         for move_raw in self.move_raw_ids:
             if move_raw.product_id.to_optimize:
                 bom_line_id = self.bom_id.bom_line_ids.filtered(lambda r: r.product_id == move_raw.product_id)
+                move_raw.state = 'assigned'
                 self.product_qty = int(move_raw.quantity_done / bom_line_id.product_qty)
         changer = self.env['change.production.qty'].create({
             'mo_id': self.id,
@@ -40,10 +42,3 @@ class MRPProduction(models.Model):
         if not self.optimal:
             raise ValidationError(_('The production is not optimal'))
         return super(MRPProduction, self).open_produce_product()
-
-    @api.multi
-    def action_assign(self):
-        for production in self:
-            move_to_assign = production.move_raw_ids.filtered(lambda x: x.state in ('confirmed', 'waiting', 'assigned') and not x.product_id.to_optimize)
-            move_to_assign.action_assign()
-        return True

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'MRP Production Optimize Raw Material',
-    'version': '1.1.0',
+    'version': '1.2.0',
     'author': 'HomebrewSoft',
     'website': 'https://github.com/HomebrewSoft/mrp_production_optimize_raw_material',
     'depends': [
