@@ -40,3 +40,10 @@ class MRPProduction(models.Model):
         if not self.optimal:
             raise ValidationError(_('The production is not optimal'))
         return super(MRPProduction, self).open_produce_product()
+
+    @api.multi
+    def action_assign(self):
+        for production in self:
+            move_to_assign = production.move_raw_ids.filtered(lambda x: x.state in ('confirmed', 'waiting', 'assigned') and not x.product_id.to_optimize)
+            move_to_assign.action_assign()
+        return True
